@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -r \"echo password_hash\\('Admin1234!', PASSWORD_BCRYPT, ['cost'=>12]\\);\")"
+    ]
+  }
+}
