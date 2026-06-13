@@ -55,8 +55,8 @@ layoutNav('admin');
 <div class="container" style="max-width:900px">
   <?php layoutFlash(); ?>
   <div class="page-header">
-    <h1>📂 Категории</h1>
-    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">← Начало</a>
+    <h1>Категории</h1>
+    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">Начало</a>
   </div>
 
   <!-- Add category -->

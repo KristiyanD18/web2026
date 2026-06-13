@@ -52,10 +52,6 @@ if ($number && $code) {
 <body>
 <?php layoutNav('track'); ?>
 
-<div class="hero" style="padding:2.5rem 1.5rem 2rem">
-  <h1>🔍 Проследяване на Документ</h1>
-  <p>Въведете входящия номер и кода за достъп</p>
-</div>
 
 <div class="container" style="max-width:720px">
   <!-- SEARCH FORM -->
@@ -93,7 +89,7 @@ if ($number && $code) {
 
   <div class="card mb-3">
     <div class="card-header">
-      📄 <?= h($doc['title']) ?>
+      <?= h($doc['title']) ?>
     </div>
     <div class="card-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;flex-wrap:wrap">
@@ -113,7 +109,7 @@ if ($number && $code) {
           <p class="text-sm text-gray">Приоритет</p>
           <p>
             <?php if ($doc['priority'] === 'high'): ?>
-              <span class="badge badge-high">🔥 Приоритетен</span>
+              <span class="badge badge-high">Приоритетен</span>
             <?php else: ?>
               <span class="badge badge-secondary">Нормален</span>
             <?php endif; ?>
@@ -137,7 +133,7 @@ if ($number && $code) {
 
       <?php if ($doc['status'] === 'paused'): ?>
       <div class="alert alert-warning mt-2">
-        ⏸ Обработката на документа е временно паузирана.
+        Обработката на документа е временно паузирана.
       </div>
       <?php endif; ?>
 
@@ -153,7 +149,7 @@ if ($number && $code) {
   <!-- HISTORY TIMELINE -->
   <?php if ($history): ?>
   <div class="card">
-    <div class="card-header">📋 История на документа</div>
+    <div class="card-header">История на документа</div>
     <div class="card-body">
       <ul class="timeline">
         <?php foreach ($history as $h_item): ?>
@@ -177,9 +173,6 @@ if ($number && $code) {
 
   <?php endif; ?>
 
-  <div class="text-center mt-2">
-    <a href="<?= url('public/submit.php') ?>" class="text-sm">← Входири нов документ</a>
-  </div>
 </div>
 <script src="<?= url('public/assets/js/main.js') ?>"></script>
 </body>

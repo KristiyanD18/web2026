@@ -28,52 +28,31 @@ layoutNav('admin');
 ?>
 <div class="container">
   <?php layoutFlash(); ?>
-  <div class="page-header">
-    <h1>📊 Административен панел</h1>
-    <div class="d-flex gap-1">
-      <a href="<?= url('public/admin/documents.php') ?>" class="btn btn-primary">Всички документи</a>
-      <a href="<?= url('public/admin/categories.php') ?>" class="btn btn-outline">Категории</a>
-      <a href="<?= url('public/admin/users.php') ?>" class="btn btn-outline">Потребители</a>
+
+  <div class="stats-grid mb-3" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat-card" style="padding:.6rem .85rem;flex-direction:row;align-items:center;justify-content:space-between">
+      <span class="stat-label" style="font-size:.75rem">Чакащи</span>
+      <span class="stat-value" style="font-size:1.1rem"><?= $pending ?></span>
+    </div>
+    <div class="stat-card" style="padding:.6rem .85rem;flex-direction:row;align-items:center;justify-content:space-between">
+      <span class="stat-label" style="font-size:.75rem">В обработка</span>
+      <span class="stat-value" style="font-size:1.1rem"><?= $inProg ?></span>
+    </div>
+    <div class="stat-card" style="padding:.6rem .85rem;flex-direction:row;align-items:center;justify-content:space-between">
+      <span class="stat-label" style="font-size:.75rem">Обработени</span>
+      <span class="stat-value" style="font-size:1.1rem"><?= $completed ?></span>
+    </div>
+    <div class="stat-card" style="padding:.6rem .85rem;flex-direction:row;align-items:center;justify-content:space-between">
+      <span class="stat-label" style="font-size:.75rem">Паузирани</span>
+      <span class="stat-value" style="font-size:1.1rem"><?= $paused ?></span>
+    </div>
+    <div class="stat-card" style="padding:.6rem .85rem;flex-direction:row;align-items:center;justify-content:space-between">
+      <span class="stat-label" style="font-size:.75rem">Приоритетни</span>
+      <span class="stat-value" style="font-size:1.1rem"><?= $high ?></span>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-value"><?= $total ?></span>
-      <span class="stat-label">Общо активни</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-value" style="color:var(--clr-warning)"><?= $pending ?></span>
-      <span class="stat-label">Чакащи</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-value" style="color:#1d4ed8"><?= $inProg ?></span>
-      <span class="stat-label">В обработка</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-value" style="color:var(--clr-success)"><?= $completed ?></span>
-      <span class="stat-label">Обработени</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-value" style="color:var(--clr-gray)"><?= $paused ?></span>
-      <span class="stat-label">Паузирани</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-value" style="color:var(--clr-danger)"><?= $high ?></span>
-      <span class="stat-label">Приоритетни</span>
-    </div>
-  </div>
-
-  <!-- Quick actions -->
-  <div class="d-flex gap-1 mb-3" style="flex-wrap:wrap">
-    <a href="<?= url('public/admin/documents.php') ?>?status=pending" class="btn btn-warning btn-sm">Чакащи →</a>
-    <a href="<?= url('public/admin/documents.php') ?>?priority=high" class="btn btn-danger btn-sm">Приоритетни →</a>
-    <a href="<?= url('public/admin/archive.php') ?>" class="btn btn-outline btn-sm">🗄 Архив</a>
-    <a href="<?= url('public/admin/statistics.php') ?>" class="btn btn-outline btn-sm">📈 Статистика</a>
-  </div>
-
-  <div class="card">
-    <div class="card-header">📋 Последни документи</div>
+<div class="card">
     <div class="table-wrap">
       <table>
         <thead>
@@ -91,9 +70,9 @@ layoutNav('admin');
             <td><span class="badge <?= statusClass($doc['status']) ?>"><?= statusLabel($doc['status']) ?></span></td>
             <td>
               <?php if ($doc['priority'] === 'high'): ?>
-                <span class="badge badge-high">🔥 Приор.</span>
+                <span class="badge badge-high">Висок</span>
               <?php else: ?>
-                <span class="badge badge-secondary">Норм.</span>
+                <span class="badge badge-secondary">Нормален</span>
               <?php endif; ?>
             </td>
             <td class="text-sm text-gray"><?= h(date('d.m.Y H:i', strtotime($doc['submitted_at']))) ?></td>

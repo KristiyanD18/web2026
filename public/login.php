@@ -31,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="login-wrap">
   <div class="login-card">
     <div class="logo">
-      <div style="font-size:2.5rem">📂</div>
       <h2><?= h(APP_NAME) ?></h2>
       <p class="text-gray text-sm mt-1">Вход за служители</p>
     </div>
@@ -56,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <hr class="separator">
     <p class="text-center text-sm text-gray">
-      <a href="<?= url('public/submit.php') ?>">← Публична страница</a>
+      <a href="<?= url('public/submit.php') ?>">Публична страница</a>
     </p>
   </div>
 </div>

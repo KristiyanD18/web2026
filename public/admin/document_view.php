@@ -32,6 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
     $action = $_POST['action'] ?? '';
 
+    // Change status + priority combined
+    if ($action === 'status_priority') {
+        $newStatus = $_POST['new_status'] ?? '';
+        $allowed   = ['pending','in_progress','completed','paused','archived'];
+        $p         = ($_POST['priority'] ?? '') === 'high' ? 'high' : 'normal';
+        if (in_array($newStatus, $allowed, true)) {
+            DB::query('UPDATE documents SET status=?, priority=? WHERE id=?', [$newStatus, $p, $id]);
+            DB::query(
+                'INSERT INTO document_history (document_id,old_status,new_status,changed_by_id,changed_by_name,notes) VALUES (?,?,?,?,?,?)',
+                [$id, $doc['status'], $newStatus, Auth::id(), Auth::fullName(), null]
+            );
+            $doc['status']   = $newStatus;
+            $doc['priority'] = $p;
+            flash('success', 'Документът е обновен.');
+            redirect('public/admin/document_view.php?id=' . $id);
+        }
+    }
+
     // Change status
     if ($action === 'status') {
         $newStatus = $_POST['new_status'] ?? '';
@@ -195,11 +213,11 @@ layoutNav('admin');
 
   <div class="page-header">
     <div>
-      <h1>📄 <?= h($doc['incoming_number']) ?></h1>
+      <h1><?= h($doc['incoming_number']) ?></h1>
       <p class="text-gray text-sm"><?= h($doc['title']) ?></p>
     </div>
     <div class="d-flex gap-1">
-      <a href="<?= url('public/admin/documents.php') ?>" class="btn btn-outline btn-sm">← Назад</a>
+      <a href="<?= url('public/admin/documents.php') ?>" class="btn btn-outline btn-sm">Назад</a>
     </div>
   </div>
 
@@ -217,7 +235,7 @@ layoutNav('admin');
             <tr><td class="text-gray">Статус</td>
                 <td><span class="badge <?= statusClass($doc['status']) ?>"><?= statusLabel($doc['status']) ?></span></td></tr>
             <tr><td class="text-gray">Приоритет</td>
-                <td><?= $doc['priority']==='high' ? '<span class="badge badge-high">🔥 Приоритетен</span>' : 'Нормален' ?></td></tr>
+                <td><?= $doc['priority']==='high' ? '<span class="badge badge-high">Приоритетен</span>' : 'Нормален' ?></td></tr>
             <tr><td class="text-gray">Категория</td>
                 <td><?= h($doc['cat_name'] ?? '—') ?></td></tr>
             <tr><td class="text-gray">Подател</td>
@@ -231,7 +249,7 @@ layoutNav('admin');
                 </td></tr>
             <tr><td class="text-gray">Файл</td>
                 <td><?= h($doc['original_filename']) ?> (<?= formatBytes($doc['file_size']) ?>)
-                  <?php if ($doc['is_encrypted']): ?> 🔒<?php endif; ?>
+                  <?php if ($doc['is_encrypted']): ?> [Крипт.]<?php endif; ?>
                 </td></tr>
             <tr><td class="text-gray">Входирано</td>
                 <td><?= h(date('d.m.Y H:i', strtotime($doc['submitted_at']))) ?></td></tr>
@@ -239,75 +257,23 @@ layoutNav('admin');
         </div>
       </div>
 
-      <!-- Change status -->
+      <!-- Change status + priority -->
       <div class="card mb-2">
-        <div class="card-header">Смяна на статус</div>
-        <div class="card-body">
-          <form method="post">
-            <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
-            <input type="hidden" name="action" value="status">
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:.75rem;align-items:end">
-              <div class="form-group" style="margin:0">
-                <label>Нов статус</label>
-                <select name="new_status" class="form-control">
-                  <?php foreach (['pending','in_progress','completed','paused'] as $s): ?>
-                  <option value="<?= $s ?>" <?= $doc['status']===$s?'selected':'' ?>><?= statusLabel($s) ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Бележка (незадължителна)</label>
-                <input type="text" name="notes" class="form-control" maxlength="255">
-              </div>
-              <button class="btn btn-primary btn-sm" style="margin-bottom:.1rem">Смени</button>
-            </div>
-          </form>
-
-          <!-- Quick status buttons -->
-          <div class="d-flex gap-1 mt-2" style="flex-wrap:wrap">
-            <?php
-            $statusBtns = [
-                ['in_progress','Приеми','btn-primary'],
-                ['completed',  'Завърши','btn-success'],
-                ['paused',     'Паузирай','btn-warning'],
-            ];
-            foreach ($statusBtns as [$s,$lbl,$cls]):
-                if ($doc['status'] !== $s):
-            ?>
-            <button class="btn <?= $cls ?> btn-sm"
-                    data-status-change data-doc-id="<?= $id ?>"
-                    data-status="<?= $s ?>" data-label="<?= statusLabel($s) ?>">
-              <?= $lbl ?>
-            </button>
-            <?php endif; endforeach; ?>
-
-            <!-- Archive -->
-            <?php if ($doc['status'] !== 'archived'): ?>
-            <form method="post" style="display:inline">
-              <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
-              <input type="hidden" name="action" value="status">
-              <input type="hidden" name="new_status" value="archived">
-              <input type="hidden" name="notes" value="Документът е архивиран.">
-              <button type="submit" class="btn btn-outline btn-sm"
-                      data-confirm="Архивиране на документа?">🗄 Архивирай</button>
-            </form>
-            <?php endif; ?>
-          </div>
-        </div>
-      </div>
-
-      <!-- Change priority -->
-      <div class="card mb-2">
-        <div class="card-header">Приоритет</div>
+        <div class="card-header">Статус и приоритет</div>
         <div class="card-body">
           <form method="post" class="d-flex gap-1 align-center">
             <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
-            <input type="hidden" name="action" value="priority">
-            <select name="priority" class="form-control" style="width:auto">
-              <option value="normal" <?= $doc['priority']==='normal'?'selected':'' ?>>Нормален</option>
-              <option value="high"   <?= $doc['priority']==='high'?'selected':'' ?>>🔥 Приоритетен</option>
+            <input type="hidden" name="action" value="status_priority">
+            <select name="new_status" class="form-control">
+              <?php foreach (['pending','in_progress','completed','paused'] as $s): ?>
+              <option value="<?= $s ?>" <?= $doc['status']===$s?'selected':'' ?>><?= statusLabel($s) ?></option>
+              <?php endforeach; ?>
             </select>
-            <button class="btn btn-outline btn-sm">Запази</button>
+            <select name="priority" class="form-control">
+              <option value="normal" <?= $doc['priority']==='normal'?'selected':'' ?>>Нормален</option>
+              <option value="high"   <?= $doc['priority']==='high'?'selected':'' ?>>Висок</option>
+            </select>
+            <button class="btn btn-primary btn-sm">Запази</button>
           </form>
         </div>
       </div>
@@ -328,7 +294,7 @@ layoutNav('admin');
 
       <!-- History -->
       <div class="card mb-2">
-        <div class="card-header">📋 История</div>
+        <div class="card-header">История</div>
         <div class="card-body">
           <ul class="timeline">
             <?php foreach ($history as $h_item): ?>
@@ -347,7 +313,7 @@ layoutNav('admin');
 
       <!-- Access log -->
       <div class="card">
-        <div class="card-header">👁 Лог за достъп</div>
+        <div class="card-header">Лог за достъп</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Тип</th><th>От</th><th>IP</th><th>Дата</th><th>Продъл.</th><th>Успех</th></tr></thead>
@@ -359,7 +325,7 @@ layoutNav('admin');
                 <td class="text-sm text-gray"><?= h($log['ip_address']) ?></td>
                 <td class="text-sm text-gray"><?= h(date('d.m.Y H:i', strtotime($log['accessed_at']))) ?></td>
                 <td class="text-sm"><?= $log['duration_seconds'] ? $log['duration_seconds'].'с' : '—' ?></td>
-                <td><?= $log['success'] ? '✅' : '❌' ?></td>
+                <td><?= $log['success'] ? 'Да' : 'Не' ?></td>
               </tr>
               <?php endforeach; ?>
               <?php if (empty($accessLogs)): ?>
@@ -412,7 +378,7 @@ layoutNav('admin');
           <form method="post">
             <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
             <input type="hidden" name="action" value="download">
-            <button class="btn btn-primary w-full">⬇ Изтегли файла</button>
+            <button class="btn btn-primary w-full">Изтегли файла</button>
           </form>
         </div>
       </div>
@@ -421,7 +387,7 @@ layoutNav('admin');
       <!-- Encryption -->
       <?php if (!$doc['is_encrypted']): ?>
       <div class="card mb-2">
-        <div class="card-header">🔒 Криптиране</div>
+        <div class="card-header">Криптиране</div>
         <div class="card-body">
           <p class="text-sm text-gray mb-2">Криптирайте документа с разделен ключ.</p>
           <form method="post">
@@ -451,7 +417,7 @@ layoutNav('admin');
                   <input type="password" name="part_password[]" class="form-control" required>
                 </div>
                 <?php if ($i > 2): ?>
-                <button type="button" class="btn btn-danger btn-sm remove-part">✕</button>
+                <button type="button" class="btn btn-danger btn-sm remove-part">X</button>
                 <?php else: ?>
                 <div></div>
                 <?php endif; ?>
@@ -462,14 +428,14 @@ layoutNav('admin');
             <input type="hidden" id="max-parts" value="5">
             <button type="button" id="add-key-part" class="btn btn-outline btn-sm mb-2">+ Добави притежател</button>
             <button type="submit" class="btn btn-warning w-full"
-                    data-confirm="Криптирането е необратимо! Продължи?">🔒 Криптирай</button>
+                    data-confirm="Криптирането е необратимо! Продължи?">Криптирай</button>
           </form>
         </div>
       </div>
       <?php else: ?>
       <!-- Decrypt -->
       <div class="card mb-2">
-        <div class="card-header">🔓 Декриптиране и Изтегляне</div>
+        <div class="card-header">Декриптиране и Изтегляне</div>
         <div class="card-body">
           <p class="text-sm text-gray mb-2">
             Изисква пароли от <strong><?= $encInfo['num_parts'] ?></strong> притежател(и).
@@ -484,7 +450,7 @@ layoutNav('admin');
                      class="form-control" required>
             </div>
             <?php endforeach; ?>
-            <button type="submit" class="btn btn-primary w-full">🔓 Декриптирай и изтегли</button>
+            <button type="submit" class="btn btn-primary w-full">Декриптирай и изтегли</button>
           </form>
         </div>
       </div>

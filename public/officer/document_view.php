@@ -74,10 +74,10 @@ layoutNav('officer');
 
   <div class="page-header">
     <div>
-      <h1>📄 <?= h($doc['incoming_number']) ?></h1>
+      <h1><?= h($doc['incoming_number']) ?></h1>
       <p class="text-gray text-sm"><?= h($doc['title']) ?></p>
     </div>
-    <a href="<?= url('public/officer/index.php') ?>" class="btn btn-outline btn-sm">← Назад</a>
+    <a href="<?= url('public/officer/index.php') ?>" class="btn btn-outline btn-sm">Назад</a>
   </div>
 
   <div style="display:grid;grid-template-columns:3fr 2fr;gap:1.25rem">
@@ -91,13 +91,13 @@ layoutNav('officer');
                 <td><span class="badge <?= statusClass($doc['status']) ?>"><?= statusLabel($doc['status']) ?></span></td></tr>
             <tr><td class="text-gray">Категория</td><td><?= h($doc['cat_name'] ?? '—') ?></td></tr>
             <tr><td class="text-gray">Приоритет</td>
-                <td><?= $doc['priority']==='high' ? '<span class="badge badge-high">🔥 Приоритетен</span>' : 'Нормален' ?></td></tr>
+                <td><?= $doc['priority']==='high' ? '<span class="badge badge-high">Приоритетен</span>' : 'Нормален' ?></td></tr>
             <tr><td class="text-gray">Подател</td>
                 <td><?= h($doc['submitter_name']) ?>
                     <?php if ($doc['submitter_email']): ?><br><span class="text-gray text-sm"><?= h($doc['submitter_email']) ?></span><?php endif; ?>
                 </td></tr>
             <tr><td class="text-gray">Файл</td>
-                <td><?= h($doc['original_filename']) ?> (<?= formatBytes($doc['file_size']) ?>)<?= $doc['is_encrypted'] ? ' 🔒' : '' ?></td></tr>
+                <td><?= h($doc['original_filename']) ?> (<?= formatBytes($doc['file_size']) ?>)<?= $doc['is_encrypted'] ? ' [Крипт.]' : '' ?></td></tr>
             <tr><td class="text-gray">Входирано</td>
                 <td><?= h(date('d.m.Y H:i', strtotime($doc['submitted_at']))) ?></td></tr>
           </table>
@@ -145,7 +145,7 @@ layoutNav('officer');
 
       <!-- History -->
       <div class="card">
-        <div class="card-header">📋 История</div>
+        <div class="card-header">История</div>
         <div class="card-body">
           <ul class="timeline">
             <?php foreach ($history as $h_item): ?>

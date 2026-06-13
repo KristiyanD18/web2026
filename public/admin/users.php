@@ -61,18 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $users = DB::all('SELECT * FROM users ORDER BY role, full_name');
 
 layoutHead('Потребители');
-layoutNav('admin');
+layoutNav('users');
 ?>
-<div class="container" style="max-width:900px">
+<div class="container">
   <?php layoutFlash(); ?>
   <?php foreach ($errors as $e): ?>
   <div class="alert alert-danger"><?= h($e) ?></div>
   <?php endforeach; ?>
 
-  <div class="page-header">
-    <h1>👤 Потребители</h1>
-    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">← Начало</a>
-  </div>
 
   <!-- Add user -->
   <div class="card mb-3">
@@ -82,6 +78,11 @@ layoutNav('admin');
         <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
         <input type="hidden" name="action" value="create">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="form-group">
+            <label class="required">Име</label>
+            <input type="text" name="full_name" class="form-control" required
+                   value="<?= h($_POST['full_name'] ?? '') ?>">
+          </div>
           <div class="form-group">
             <label class="required">Потребителско име</label>
             <input type="text" name="username" class="form-control" required
@@ -93,14 +94,9 @@ layoutNav('admin');
                    value="<?= h($_POST['email'] ?? '') ?>">
           </div>
           <div class="form-group">
-            <label class="required">Пълно Пространство</label>
-            <input type="text" name="full_name" class="form-control" required
-                   value="<?= h($_POST['full_name'] ?? '') ?>">
-          </div>
-          <div class="form-group">
             <label>Роля</label>
             <select name="role" class="form-control">
-              <option value="officer">Отговорник</option>
+              <option value="officer">Обикновен потребител</option>
               <option value="admin">Администратор</option>
             </select>
           </div>
@@ -123,7 +119,7 @@ layoutNav('admin');
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Пространство</th><th>Username</th><th>Email</th><th>Роля</th><th>Активен</th><th></th></tr>
+          <tr><th style="width:150px">Име</th><th style="white-space:nowrap">Потребителско име</th><th>Email</th><th>Роля</th><th>Активен</th><th></th></tr>
         </thead>
         <tbody>
           <?php foreach ($users as $u): ?>
@@ -133,20 +129,22 @@ layoutNav('admin');
             <td class="text-sm"><?= h($u['email']) ?></td>
             <td>
               <span class="badge <?= $u['role']==='admin'?'badge-danger':'badge-info' ?>">
-                <?= $u['role'] === 'admin' ? 'Администратор' : 'Отговорник' ?>
+                <?= $u['role'] === 'admin' ? 'Администратор' : 'Обикновен потребител' ?>
               </span>
             </td>
             <td><?= $u['is_active'] ? '<span class="badge badge-success">Да</span>' : '<span class="badge badge-secondary">Не</span>' ?></td>
-            <td class="d-flex gap-1" style="white-space:nowrap">
-              <?php if ($u['id'] !== Auth::id()): ?>
-              <form method="post" style="display:inline">
-                <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
-                <input type="hidden" name="action" value="toggle">
-                <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                <button class="btn btn-outline btn-sm"><?= $u['is_active'] ? 'Деактивирай' : 'Активирай' ?></button>
-              </form>
-              <?php endif; ?>
-              <button onclick="togglePwReset(<?= $u['id'] ?>)" class="btn btn-outline btn-sm">Нова парола</button>
+            <td style="white-space:nowrap">
+              <div class="d-flex gap-1">
+                <?php if ($u['id'] !== Auth::id()): ?>
+                <form method="post" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
+                  <input type="hidden" name="action" value="toggle">
+                  <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                  <button class="btn btn-outline btn-sm"><?= $u['is_active'] ? 'Деактивирай' : 'Активирай' ?></button>
+                </form>
+                <?php endif; ?>
+                <button onclick="togglePwReset(<?= $u['id'] ?>)" class="btn btn-outline btn-sm">Нова парола</button>
+              </div>
               <div id="pw-<?= $u['id'] ?>" style="display:none">
                 <form method="post" class="d-flex gap-1 align-center mt-1">
                   <input type="hidden" name="csrf_token" value="<?= csrf() ?>">

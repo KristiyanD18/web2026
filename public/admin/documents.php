@@ -44,8 +44,8 @@ layoutNav('admin');
 <div class="container">
   <?php layoutFlash(); ?>
   <div class="page-header">
-    <h1>📁 Документи</h1>
-    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">← Начало</a>
+    <h1>Документи</h1>
+    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">Начало</a>
   </div>
 
   <!-- Filters -->
@@ -97,12 +97,12 @@ layoutNav('admin');
             <td><span class="badge <?= statusClass($doc['status']) ?>"><?= statusLabel($doc['status']) ?></span></td>
             <td>
               <?php if ($doc['priority']==='high'): ?>
-                <span class="badge badge-high">🔥</span>
+                <span class="badge badge-high">Висок</span>
               <?php else: ?>
-                <span class="text-gray text-sm">—</span>
+                <span class="badge badge-secondary">Нормален</span>
               <?php endif; ?>
             </td>
-            <td><?= $doc['is_encrypted'] ? '🔒' : '' ?></td>
+            <td><?= $doc['is_encrypted'] ? 'Да' : '' ?></td>
             <td class="text-sm text-gray" style="white-space:nowrap"><?= h(date('d.m.Y H:i', strtotime($doc['submitted_at']))) ?></td>
             <td style="white-space:nowrap">
               <a href="<?= url('public/admin/document_view.php') ?>?id=<?= $doc['id'] ?>"

@@ -70,8 +70,8 @@ layoutNav('admin');
 <div class="container">
   <?php layoutFlash(); ?>
   <div class="page-header">
-    <h1>📈 Статистика</h1>
-    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">← Начало</a>
+    <h1>Статистика</h1>
+    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">Начало</a>
   </div>
 
   <!-- Summary stats -->
@@ -167,7 +167,7 @@ layoutNav('admin');
 
   <!-- Decrypt attempts table -->
   <div class="card mt-2">
-    <div class="card-header">🔒 Опити за декриптиране</div>
+    <div class="card-header">Опити за декриптиране</div>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Тип</th><th>Документ</th><th>Потребител</th><th>IP</th><th>Дата</th><th>Резултат</th></tr></thead>

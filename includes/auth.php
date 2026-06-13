@@ -61,6 +61,6 @@ class Auth {
     }
 
     public static function isOfficer(): bool {
-        return in_array(self::role(), ['admin', 'officer'], true);
+        return self::role() === 'officer';
     }
 }

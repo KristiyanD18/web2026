@@ -56,14 +56,16 @@ CREATE TABLE IF NOT EXISTS `documents` (
     `priority`          ENUM('normal','high') NOT NULL DEFAULT 'normal',
     `access_code`       VARCHAR(12) NOT NULL,
     `qr_filename`       VARCHAR(255) DEFAULT NULL,
-    `submitter_name`    VARCHAR(100) NOT NULL,
-    `submitter_email`   VARCHAR(100) DEFAULT NULL,
-    `submitter_phone`   VARCHAR(30)  DEFAULT NULL,
-    `officer_notes`     TEXT DEFAULT NULL,
+    `submitter_name`        VARCHAR(100) NOT NULL,
+    `submitter_email`       VARCHAR(100) DEFAULT NULL,
+    `submitter_phone`       VARCHAR(30)  DEFAULT NULL,
+    `submitted_by_user_id`  INT DEFAULT NULL,
+    `officer_notes`         TEXT DEFAULT NULL,
     `is_encrypted`      TINYINT(1) NOT NULL DEFAULT 0,
     `submitted_at`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE SET NULL
+    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`submitted_by_user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ─────────────────────────────────────────────────────────────────────────────

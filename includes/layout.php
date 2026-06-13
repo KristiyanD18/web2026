@@ -20,15 +20,18 @@ function layoutNav(string $active = ''): void {
     $isOfficer  = Auth::isOfficer();
     ?>
     <nav class="navbar">
-        <a href="<?= url() ?>" class="brand">ВХ<span>Рег</span></a>
+        <a href="<?= url() ?>" class="brand">Doc<span>Reg</span></a>
         <div class="nav-links">
+            <?php if (!$isAdmin): ?>
             <a href="<?= url('public/submit.php') ?>" class="<?= $active === 'submit' ? 'active' : '' ?>">Входиране</a>
             <a href="<?= url('public/track.php') ?>" class="<?= $active === 'track' ? 'active' : '' ?>">Проследяване</a>
+            <?php endif; ?>
             <?php if ($isOfficer): ?>
             <a href="<?= url('public/officer/index.php') ?>" class="<?= $active === 'officer' ? 'active' : '' ?>">Моите Документи</a>
             <?php endif; ?>
             <?php if ($isAdmin): ?>
             <a href="<?= url('public/admin/index.php') ?>" class="<?= $active === 'admin' ? 'active' : '' ?>">Администрация</a>
+            <a href="<?= url('public/admin/users.php') ?>" class="<?= $active === 'users' ? 'active' : '' ?>">Потребители</a>
             <?php endif; ?>
         </div>
         <div class="nav-user">

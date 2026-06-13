@@ -61,8 +61,8 @@ layoutNav('admin');
 <div class="container">
   <?php layoutFlash(); ?>
   <div class="page-header">
-    <h1>🗄 Архив</h1>
-    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">← Начало</a>
+    <h1>Архив</h1>
+    <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">Начало</a>
   </div>
 
   <form method="get" class="d-flex gap-1 mb-2">
@@ -71,7 +71,7 @@ layoutNav('admin');
   </form>
 
   <div class="card">
-    <div class="card-header">🗄 Архивирани документи (<?= count($docs) ?>)</div>
+    <div class="card-header">Архивирани документи (<?= count($docs) ?>)</div>
     <div class="table-wrap">
       <table>
         <thead>
