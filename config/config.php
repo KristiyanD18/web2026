@@ -23,11 +23,19 @@ function env(string $key, mixed $default = null): mixed {
 }
 
 // ── Database ──────────────────────────────────────────────────────────────────
-define('DB_HOST',  env('DB_HOST', 'localhost'));
-define('DB_PORT',  env('DB_PORT', '3306'));
-define('DB_NAME',  env('DB_NAME', 'docreg'));
-define('DB_USER',  env('DB_USER', 'root'));
-define('DB_PASS',  env('DB_PASS', ''));
+$_db = [
+    'host' => env('DB_HOST', 'localhost'),
+    'port' => env('DB_PORT', '3306'),
+    'name' => env('DB_NAME', 'docreg'),
+    'user' => env('DB_USER', 'root'),
+    'pass' => env('DB_PASS', ''),
+];
+define('DB_HOST', $_db['host']);
+define('DB_PORT', $_db['port']);
+define('DB_NAME', $_db['name']);
+define('DB_USER', $_db['user']);
+define('DB_PASS', $_db['pass']);
+unset($_db);
 
 // ── Application ───────────────────────────────────────────────────────────────
 define('APP_NAME',      env('APP_NAME', 'Система за Входиране на Документи'));

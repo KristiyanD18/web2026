@@ -1,5 +1,6 @@
 .env
 .git
+vendor/
 uploads/docs/*
 uploads/qr/*
 design_option_*.html

@@ -3,3 +3,4 @@ uploads/docs/*
 uploads/qr/*
 !uploads/docs/.gitkeep
 !uploads/qr/.gitkeep
+.claude/
