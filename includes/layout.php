@@ -20,7 +20,7 @@ function layoutNav(string $active = ''): void {
     $isOfficer  = Auth::isOfficer();
     ?>
     <nav class="navbar">
-        <a href="<?= url() ?>" class="brand">Doc<span>Reg</span></a>
+        <a href="<?= $isAdmin ? url('public/admin/index.php') : url() ?>" class="brand">Doc<span>Reg</span></a>
         <div class="nav-links">
             <?php if (!$isAdmin): ?>
             <a href="<?= url('public/submit.php') ?>" class="<?= $active === 'submit' ? 'active' : '' ?>">Входиране</a>

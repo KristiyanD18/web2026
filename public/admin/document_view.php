@@ -14,7 +14,7 @@ $doc = DB::one(
      LEFT JOIN categories c ON c.id=d.category_id WHERE d.id=?',
     [$id]
 );
-if (!$doc) { flash('danger','Документът не е намерен.'); redirect('public/admin/documents.php'); }
+if (!$doc) { flash('danger','Документът не е намерен.'); redirect('public/admin/index.php'); }
 
 $history    = DB::all('SELECT h.*, u.full_name FROM document_history h LEFT JOIN users u ON u.id=h.changed_by_id WHERE document_id=? ORDER BY changed_at ASC', [$id]);
 $accessLogs = DB::all('SELECT l.*, u.full_name FROM access_log l LEFT JOIN users u ON u.id=l.user_id WHERE document_id=? ORDER BY accessed_at DESC LIMIT 30', [$id]);
@@ -217,7 +217,7 @@ layoutNav('admin');
       <p class="text-gray text-sm"><?= h($doc['title']) ?></p>
     </div>
     <div class="d-flex gap-1">
-      <a href="<?= url('public/admin/documents.php') ?>" class="btn btn-outline btn-sm">Назад</a>
+      <a href="<?= url('public/admin/index.php') ?>" class="btn btn-outline btn-sm">Назад</a>
     </div>
   </div>
 
@@ -246,6 +246,9 @@ layoutNav('admin');
                   <?php if ($doc['submitter_phone']): ?>
                     <br><span class="text-gray text-sm"><?= h($doc['submitter_phone']) ?></span>
                   <?php endif; ?>
+                  <?php if ($doc['submitter_faculty_number']): ?>
+                    <br><span class="text-gray text-sm">Фак. №: <?= h($doc['submitter_faculty_number']) ?></span>
+                  <?php endif; ?>
                 </td></tr>
             <tr><td class="text-gray">Файл</td>
                 <td><?= h($doc['original_filename']) ?> (<?= formatBytes($doc['file_size']) ?>)
@@ -265,7 +268,7 @@ layoutNav('admin');
             <input type="hidden" name="csrf_token" value="<?= csrf() ?>">
             <input type="hidden" name="action" value="status_priority">
             <select name="new_status" class="form-control">
-              <?php foreach (['pending','in_progress','completed','paused'] as $s): ?>
+              <?php foreach (['pending','in_progress','completed','paused','archived'] as $s): ?>
               <option value="<?= $s ?>" <?= $doc['status']===$s?'selected':'' ?>><?= statusLabel($s) ?></option>
               <?php endforeach; ?>
             </select>
@@ -398,7 +401,7 @@ layoutNav('admin');
             <div id="key-parts-container"
                  data-user-options="<?php
                    foreach ($users as $u) {
-                       echo '<option value="'.h($u['id']).'">'.h($u['full_name']).'</option>';
+                       echo "<option value='" . h($u['id']) . "'>" . h($u['full_name']) . "</option>";
                    }
                  ?>">
               <!-- Initial 2 rows -->

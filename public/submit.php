@@ -17,9 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title   = trim($_POST['title']   ?? '');
     $desc    = trim($_POST['desc']    ?? '');
     $catId   = (int)($_POST['category_id'] ?? 0) ?: null;
-    $name    = trim($_POST['submitter_name']  ?? '');
-    $email   = trim($_POST['submitter_email'] ?? '');
-    $phone   = trim($_POST['submitter_phone'] ?? '');
+    $name          = trim($_POST['submitter_name']           ?? '');
+    $email         = trim($_POST['submitter_email']          ?? '');
+    $phone         = trim($_POST['submitter_phone']          ?? '');
+    $facultyNumber = trim($_POST['submitter_faculty_number'] ?? '');
 
     if (!$title) $errors[] = 'Заглавието е задължително.';
     if (!$name)  $errors[] = 'Подателят е задължителен.';
@@ -37,14 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'INSERT INTO documents
                     (incoming_number, title, description, original_filename, stored_filename,
                      file_type, file_size, category_id, access_code,
-                     submitter_name, submitter_email, submitter_phone, submitted_by_user_id)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                     submitter_name, submitter_email, submitter_phone, submitter_faculty_number,
+                     submitted_by_user_id)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 [
                     $incomingN, $title, $desc,
                     $upload['original_name'], $upload['stored_name'],
                     $upload['file_type'], $upload['file_size'],
                     $catId, $accessCode,
-                    $name, $email ?: null, $phone ?: null,
+                    $name, $email ?: null, $phone ?: null, $facultyNumber ?: null,
                     Auth::check() ? Auth::id() : null,
                 ]
             );
@@ -192,6 +194,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="tel" id="submitter_phone" name="submitter_phone" form="submit-form"
                  class="form-control" value="<?= h($_POST['submitter_phone'] ?? '') ?>">
         </div>
+      </div>
+
+      <div class="form-group">
+        <label for="submitter_faculty_number">Факултетен номер</label>
+        <input type="text" id="submitter_faculty_number" name="submitter_faculty_number" form="submit-form"
+               class="form-control" value="<?= h($_POST['submitter_faculty_number'] ?? '') ?>" maxlength="20">
       </div>
 
       <div class="form-group" style="margin-top:.5rem">

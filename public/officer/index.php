@@ -18,7 +18,10 @@ $catIds = array_column($myCats, 'id');
 
 $filterStatus   = $_GET['status']   ?? '';
 $filterPriority = $_GET['priority'] ?? '';
+$filterCategory = (int)($_GET['cat'] ?? 0);
 $search         = trim($_GET['q']   ?? '');
+
+$categories = DB::all('SELECT * FROM categories WHERE is_active=1 ORDER BY name');
 
 $where  = ['1=1'];
 $params = [];
@@ -32,18 +35,22 @@ if (!empty($catIds)) {
     $params[] = $userId;
 }
 
-$where[] = 'd.status != "archived"';
-
-if ($filterStatus && in_array($filterStatus, ['pending','in_progress','completed','paused'])) {
-    $where[] = 'd.status=?'; $params[] = $filterStatus;
+if ($filterStatus === 'completed') {
+    $where[] = 'd.status = "completed"';
+} else {
+    $where[] = 'd.status NOT IN ("archived","completed")';
+    if ($filterStatus && in_array($filterStatus, ['pending','in_progress','paused'])) {
+        $where[] = 'd.status=?'; $params[] = $filterStatus;
+    }
 }
+if ($filterCategory) { $where[] = 'd.category_id = ?'; $params[] = $filterCategory; }
 if ($filterPriority && in_array($filterPriority, ['normal','high'])) {
     $where[] = 'd.priority=?'; $params[] = $filterPriority;
 }
 if ($search) {
-    $where[] = '(d.incoming_number LIKE ? OR d.title LIKE ? OR d.submitter_name LIKE ?)';
+    $where[] = '(d.incoming_number LIKE ? OR d.title = ? OR d.submitter_name = ? OR d.submitter_faculty_number LIKE ?)';
     $like    = "%$search%";
-    $params  = array_merge($params, [$like,$like,$like]);
+    $params  = array_merge($params, [$like,$search,$search,$like]);
 }
 
 $docs = DB::all(
@@ -54,12 +61,24 @@ $docs = DB::all(
     $params
 );
 
-// Counts
-$pending    = count(array_filter($docs, fn($d) => $d['status']==='pending'));
-$inProgress = count(array_filter($docs, fn($d) => $d['status']==='in_progress'));
-$completed  = count(array_filter($docs, fn($d) => $d['status']==='completed'));
-$paused     = count(array_filter($docs, fn($d) => $d['status']==='paused'));
-$high       = count(array_filter($docs, fn($d) => $d['priority']==='high'));
+// Counts — always total, independent of active filters
+if (!empty($catIds)) {
+    $in = implode(',', array_fill(0, count($catIds), '?'));
+    $scopeWhere  = "(d.category_id IN ($in) OR d.submitted_by_user_id = ?)";
+    $scopeParams = array_merge($catIds, [$userId]);
+} else {
+    $scopeWhere  = 'd.submitted_by_user_id = ?';
+    $scopeParams = [$userId];
+}
+$countBase = "SELECT COUNT(*) c FROM documents d WHERE $scopeWhere AND d.status = ?";
+$pending    = DB::one($countBase, array_merge($scopeParams, ['pending']))['c'];
+$inProgress = DB::one($countBase, array_merge($scopeParams, ['in_progress']))['c'];
+$completed  = DB::one($countBase, array_merge($scopeParams, ['completed']))['c'];
+$paused     = DB::one($countBase, array_merge($scopeParams, ['paused']))['c'];
+$high       = DB::one(
+    "SELECT COUNT(*) c FROM documents d WHERE $scopeWhere AND d.priority = 'high' AND d.status != 'archived'",
+    $scopeParams
+)['c'];
 
 layoutHead('Моите Документи');
 layoutNav('officer');
@@ -100,6 +119,12 @@ layoutNav('officer');
       <option value="in_progress" <?= $filterStatus==='in_progress'?'selected':'' ?>>В обработка</option>
       <option value="completed"   <?= $filterStatus==='completed'?'selected':'' ?>>Обработен</option>
       <option value="paused"      <?= $filterStatus==='paused'?'selected':'' ?>>Паузиран</option>
+    </select>
+    <select name="cat" class="form-control">
+      <option value="">Всички категории</option>
+      <?php foreach ($categories as $cat): ?>
+      <option value="<?= $cat['id'] ?>" <?= $filterCategory==$cat['id']?'selected':'' ?>><?= h($cat['name']) ?></option>
+      <?php endforeach; ?>
     </select>
     <select name="priority" class="form-control">
       <option value="">Всички приоритети</option>
