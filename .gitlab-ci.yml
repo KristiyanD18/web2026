@@ -1,0 +1,43 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE:latest
+
+build:
+  stage: build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE
+    - docker stop docreg_app || true
+    - docker rm docreg_app || true
+    - docker run -d \
+        --name docreg_app \
+        --restart unless-stopped \
+        -p 80:80 \
+        -e DB_HOST=$DB_HOST \
+        -e DB_PORT=$DB_PORT \
+        -e DB_NAME=$DB_NAME \
+        -e DB_USER=$DB_USER \
+        -e DB_PASS=$DB_PASS \
+        -e APP_NAME="$APP_NAME" \
+        -e APP_BASE_PATH=$APP_BASE_PATH \
+        -e UPLOAD_MAX_SIZE=$UPLOAD_MAX_SIZE \
+        -e UPLOAD_PATH=$UPLOAD_PATH \
+        -e QR_PATH=$QR_PATH \
+        -e SESSION_LIFETIME=$SESSION_LIFETIME \
+        -e CRYPTO_CIPHER=$CRYPTO_CIPHER \
+        $IMAGE
+  only:
+    - master
+  needs: [build]
