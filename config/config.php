@@ -39,7 +39,10 @@ unset($_db);
 
 // ── Application ───────────────────────────────────────────────────────────────
 define('APP_NAME',      env('APP_NAME', 'Система за Входиране на Документи'));
-define('APP_BASE_URL',  rtrim(env('APP_BASE_URL', 'http://localhost'), '/'));
+$_autoScheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
+$_autoHost   = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
+define('APP_BASE_URL',  rtrim(env('APP_BASE_URL') ?: ($_autoScheme . '://' . $_autoHost), '/'));
+unset($_autoScheme, $_autoHost);
 define('APP_BASE_PATH', '/' . trim(env('APP_BASE_PATH', '/'), '/'));
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
